@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OwO Account Market - Discord OwO Cash ile Hesap Satışı</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        discord: '#5865F2',
+                        discordDark: '#4752C4',
+                        darkBg: '#0b0f19',
+                        cardBg: '#131b2e',
+                        borderCol: '#1e293b',
+                        owoAccent: '#f43f5e'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(88, 101, 242, 0.25);
+        }
+        .glow-red {
+            box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.25);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-discord selection:text-white">
+
+    <header class="sticky top-0 z-50 glass-panel border-b border-borderCol">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('shop')">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-discord to-pink-500 flex items-center justify-center glow-effect">
+                    <i class="fa-solid fa-gamepad text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-discord bg-clip-text text-transparent">OwO Market</span>
+                    <span class="block text-xs text-indigo-400 font-medium">Discord OwO Cash Store</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <button onclick="switchTab('shop')" id="nav-shop" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-discord/20 text-discord border border-discord/30">
+                    <i class="fa-solid fa-store mr-2"></i>Mağaza
+                </button>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all">
+                    <i class="fa-solid fa-user-shield mr-2"></i>Panelim & Siparişler
+                </button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all hidden">
+                    <i class="fa-solid fa-screwdriver-wrench mr-2"></i>Yönetim
+                </button>
+            </nav>
+
+            <!-- User Auth Section -->
+            <div class="flex items-center space-x-3" id="auth-header-container">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-32 opacity-0 transition-all duration-300 max-w-md">
+        <div class="glass-panel px-5 py-4 rounded-2xl border border-indigo-500/30 shadow-2xl flex items-center space-x-3">
+            <div id="toast-icon" class="w-10 h-10 rounded-xl flex items-center justify-center bg-discord/20 text-discord">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <div>
+                <h4 id="toast-title" class="font-bold text-sm text-white">Bildirim</h4>
+                <p id="toast-msg" class="text-xs text-slate-400">İşlem başarıyla gerçekleştirildi.</p>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- SHOP TAB -->
+        <div id="tab-shop" class="space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl glass-panel p-8 sm:p-12 border border-discord/30 glow-effect">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-discord/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-discord/20 text-discord border border-discord/30">
+                        <i class="fa-solid fa-coins mr-1.5"></i> OwO Bot Para Birimi Geçerlidir
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Discord & Oyun Hesaplarını <span class="bg-gradient-to-r from-discord to-pink-500 bg-clip-text text-transparent">OwO Cash</span> ile Satın Al!
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Botlar, nitro, oyun hesapları ve sosyal medya hesapları burada! Güvenli alışveriş, Discord üzerinden doğrulama ve anında teslimat avantajı.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <div class="flex items-center space-x-2 text-xs text-slate-300 bg-slate-900/60 px-3 py-2 rounded-xl border border-borderCol">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                            <span>%100 Güvenli Teslimat</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs text-slate-300 bg-slate-900/60 px-3 py-2 rounded-xl border border-borderCol">
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                            <span>7/24 Discord Destek</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters & Search -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+                    <button onclick="filterCategory('all')" id="cat-all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-discord text-white shadow-lg shadow-discord/20 whitespace-nowrap">Tümü</button>
+                    <button onclick="filterCategory('Discord')" id="cat-Discord" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800/80 text-slate-300 hover:text-white border border-borderCol whitespace-nowrap">Discord</button>
+                    <button onclick="filterCategory('Oyun')" id="cat-Oyun" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800/80 text-slate-300 hover:text-white border border-borderCol whitespace-nowrap">Oyun Hesapları</button>
+                    <button onclick="filterCategory('Sosyal Medya')" id="cat-Sosyal" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800/80 text-slate-300 hover:text-white border border-borderCol whitespace-nowrap">Sosyal Medya</button>
+                </div>
+                <div class="w-full sm:w-72 relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="Hesap ara..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white placeholder-slate-500 focus:outline-none focus:border-discord transition-all">
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Populated via JS -->
+            </div>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="space-y-8 hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-borderCol flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center space-x-4">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg" id="dash-user-avatar">
+                        U
+                    </div>
+                    <div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-discord/20 text-discord border border-discord/30" id="dash-user-role">Üye</span>
+                        <h2 class="text-2xl font-bold text-white mt-1" id="dash-user-name">Kullanıcı Adı</h2>
+                        <p class="text-xs text-slate-400" id="dash-user-discord">Discord: Belirtilmemiş</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 bg-slate-900/80 p-4 rounded-2xl border border-borderCol w-full md:w-auto justify-around">
+                    <div class="text-center px-4">
+                        <span class="block text-xs text-slate-400 font-medium">Toplam Sipariş</span>
+                        <span class="text-2xl font-extrabold text-white" id="stat-total-orders">0</span>
+                    </div>
+                    <div class="w-px h-10 bg-borderCol"></div>
+                    <div class="text-center px-4">
+                        <span class="block text-xs text-slate-400 font-medium">OwO Bakiye (Simüle)</span>
+                        <span class="text-2xl font-extrabold text-pink-400">150,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                    <i class="fa-solid fa-clock-rotate-left mr-2 text-discord"></i> Geçmiş Siparişlerim
+                </h3>
+                <div class="glass-panel rounded-2xl border border-borderCol overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-borderCol text-xs text-slate-400 uppercase bg-slate-900/50">
+                                    <th class="py-4 px-6 font-semibold">Sipariş ID</th>
+                                    <th class="py-4 px-6 font-semibold">Ürün Adı</th>
+                                    <th class="py-4 px-6 font-semibold">Fiyat (OwO)</th>
+                                    <th class="py-4 px-6 font-semibold">Discord Tag</th>
+                                    <th class="py-4 px-6 font-semibold">Durum</th>
+                                    <th class="py-4 px-6 font-semibold">İşlem / Hesap Bilgisi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="divide-y divide-borderCol text-sm">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN TAB -->
+        <div id="tab-admin" class="space-y-8 hidden">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-white">Yönetim & Stok Paneli</h2>
+                    <p class="text-xs text-slate-400">Yeni hesaplar ekleyin, stokları güncelleyin ve siparişleri onaylayın.</p>
+                </div>
+                <button onclick="openAddProductModal()" class="px-5 py-2.5 rounded-xl bg-discord hover:bg-discordDark text-white font-bold text-sm shadow-lg shadow-discord/30 transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Yeni Hesap Ekle</span>
+                </button>
+            </div>
+
+            <!-- Admin Orders Management -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-white">Müşteri Siparişleri (Onay Bekleyenler)</h3>
+                <div class="glass-panel rounded-2xl border border-borderCol overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-borderCol text-xs text-slate-400 uppercase bg-slate-900/50">
+                                    <th class="py-3 px-6 font-semibold">Sipariş ID</th>
+                                    <th class="py-3 px-6 font-semibold">Kullanıcı</th>
+                                    <th class="py-3 px-6 font-semibold">Ürün</th>
+                                    <th class="py-3 px-6 font-semibold">Discord / Dekont</th>
+                                    <th class="py-3 px-6 font-semibold">Durum</th>
+                                    <th class="py-3 px-6 font-semibold">Aksiyon</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-body" class="divide-y divide-borderCol text-sm">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Stock List -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-white">Mevcut Stoklar</h3>
+                <div id="admin-product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+        <div class="glass-panel w-full max-w-md p-8 rounded-3xl border border-borderCol shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center space-y-2 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-discord/20 text-discord mx-auto flex items-center justify-center text-xl font-bold">
+                    <i class="fa-brands fa-discord"></i>
+                </div>
+                <h3 id="auth-modal-title" class="text-2xl font-extrabold text-white">Giriş Yap</h3>
+                <p class="text-xs text-slate-400">OwO Market'e hoş geldiniz. Lütfen bilgilerinizi girin.</p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="auth-name-field" class="space-y-1.5 hidden">
+                    <label class="text-xs font-semibold text-slate-300">Ad Soyad / Takma Ad</label>
+                    <input type="text" id="input-name" placeholder="Örn: Eren Yeager" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">E-posta</label>
+                    <input type="email" id="input-email" required placeholder="ornek@mail.com" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Discord Kullanıcı Adı (Örn: username#0000)</label>
+                    <input type="text" id="input-discord" required placeholder="discordtag#1234" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Şifre</label>
+                    <input type="password" id="input-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="w-full py-3.5 rounded-xl bg-discord hover:bg-discordDark text-white font-bold text-sm shadow-lg shadow-discord/30 transition-all">
+                    Giriş Yap
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-xs text-slate-400">
+                    <span id="auth-switch-text">Hesabın yok mu?</span>
+                    <button onclick="toggleAuthMode()" class="text-discord font-bold hover:underline ml-1" id="auth-switch-btn">Kayıt Ol</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PURCHASE MODAL -->
+    <div id="purchase-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+        <div class="glass-panel w-full max-w-lg p-8 rounded-3xl border border-borderCol shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closePurchaseModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="space-y-6">
+                <div class="flex items-center space-x-4 border-b border-borderCol pb-5">
+                    <div id="modal-product-icon" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-discord to-pink-500 flex items-center justify-center text-white text-2xl font-bold">
+                        <i class="fa-solid fa-shield"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold text-pink-400 uppercase tracking-wider" id="modal-product-category">Discord</span>
+                        <h3 id="modal-product-title" class="text-xl font-bold text-white">Ürün Adı</h3>
+                        <p class="text-sm font-extrabold text-discord mt-0.5" id="modal-product-price">50,000 OwO Cash</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 bg-slate-900/60 p-5 rounded-2xl border border-borderCol">
+                    <h4 class="text-sm font-bold text-white flex items-center">
+                        <i class="fa-solid fa-circle-info text-discord mr-2"></i> OwO Bot Ödeme Talimatları
+                    </h4>
+                    <ol class="text-xs text-slate-300 space-y-2 list-decimal list-inside">
+                        <li>Discord üzerinden <strong class="text-white">OwO Bot</strong> (<code class="bg-slate-800 px-1.5 py-0.5 rounded text-pink-400">owo</code>) kullanılan herhangi bir sunucuya git.</li>
+                        <li>Satıcıya OwO para gönder: <code class="bg-slate-800 px-1.5 py-0.5 rounded text-indigo-300" id="bot-command-preview">owo cash @SaticiAdi 50000</code></li>
+                        <li>İşlem gerçekleştikten sonra Discord etiketinizi ve işlem kanıtını aşağıya girin.</li>
+                    </ol>
+                </div>
+
+                <form id="purchase-form" onsubmit="handlePurchaseSubmit(event)" class="space-y-4">
+                    <input type="hidden" id="modal-product-id">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-300">Discord Etiketiniz (Örn: seninadi#1234)</label>
+                        <input type="text" id="buy-discord-tag" required placeholder="seninadi#1234" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-300">Ödeme Notu / Ekran Görüntüsü Linki (Opsiyonel)</label>
+                        <input type="text" id="buy-proof" placeholder="Örn: Discord DM üzerinden dekont attım" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-discord to-pink-500 hover:from-discordDark hover:to-pink-600 text-white font-bold text-sm shadow-lg shadow-discord/30 transition-all">
+                        Siparişi Tamamla & Bildir
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD PRODUCT MODAL (Admin) -->
+    <div id="add-product-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+        <div class="glass-panel w-full max-w-lg p-8 rounded-3xl border border-borderCol shadow-2xl relative">
+            <button onclick="closeAddProductModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-6">Yeni Hesap/Ürün Ekle</h3>
+            <form onsubmit="handleAddProductSubmit(event)" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Ürün Başlığı</label>
+                    <input type="text" id="add-title" required placeholder="Örn: 3 Aylık Discord Nitro Boost" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-300">Kategori</label>
+                        <select id="add-category" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                            <option value="Discord">Discord</option>
+                            <option value="Oyun">Oyun Hesapları</option>
+                            <option value="Sosyal Medya">Sosyal Medya</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-300">Fiyat (OwO Cash)</label>
+                        <input type="number" id="add-price" required placeholder="50000" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Özellikler / Açıklama</label>
+                    <input type="text" id="add-specs" required placeholder="Örn: 2 Boost, Full Garanti, Email Değişir" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Teslim Edilecek Hesap Bilgileri (Kullanıcıya onay sonrası görünür)</label>
+                    <textarea id="add-credentials" required rows="3" placeholder="kullaniciadi:sifre veya token" class="w-full px-4 py-3 rounded-xl bg-slate-900/80 border border-borderCol text-sm text-white focus:outline-none focus:border-discord"></textarea>
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-discord hover:bg-discordDark text-white font-bold text-sm shadow-lg shadow-discord/30 transition-all">
+                    Ürünü Sisteme Ekle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="border-t border-borderCol py-8 mt-12 text-center text-xs text-slate-500">
+        <p>&copy; 2026 OwO Account Market. Tüm hakları saklıdır. Discord OwO Bot ile güvenli ticaret.</p>
+    </footer>
+
+    <!-- Application Logic Script -->
+    <script>
+        // State management
+        let currentUser = JSON.parse(localStorage.getItem('owo_user')) || null;
+        let isRegisterMode = false;
+        let currentFilter = 'all';
+
+        // Initial Sample Products
+        let products = JSON.parse(localStorage.getItem('owo_products')) || [
+            {
+                id: 'prod-1',
+                title: 'Full Yetkili Discord Nitro Boost (3 Ay)',
+                category: 'Discord',
+                price: 120000,
+                specs: '2x Server Boost, Mail Onaylı, Garantili',
+                stock: 5,
+                credentials: 'nitro_user_01@discord.com : SecurePass123'
+            },
+            {
+                id: 'prod-2',
+                title: 'Valorant TR Full Skinli Hesap (Ascendant)',
+                category: 'Oyun',
+                price: 450000,
+                specs: 'Asil Vandal, Yağmacı Karambit, 150+ Level',
+                stock: 2,
+                credentials: 'valorant_tr_acc99@gmail.com : GamePass2026!'
+            },
+            {
+                id: 'prod-3',
+                title: 'Eski Tarihli Discord Hesap (2018 Yılı)',
+                category: 'Discord',
+                price: 75000,
+                specs: 'Badge, Telefon Onaysız, Temiz Geçmiş',
+                stock: 10,
+                credentials: 'old_account_2018_xyz@mail.com : OldPass889'
+            },
+            {
+                id: 'prod-4',
+                title: 'Steam 10 Yıllık Rozetli CS2 Prime Hesap',
+                category: 'Oyun',
+                price: 300000,
+                specs: 'CS2 Prime, 10 Year Coin, 5+ Oyun',
+                stock: 3,
+                credentials: 'steam_gamer_pro_88@outlook.com : SteamSecure77'
+            }
+        ];
+
+        // Initial Sample Orders
+        let orders = JSON.parse(localStorage.getItem('owo_orders')) || [
+            {
+                id: 'ORD-9821',
+                userId: 'admin@market.com',
+                userName: 'Admin User',
+                productId: 'prod-3',
+                productTitle: 'Eski Tarihli Discord Hesap (2018 Yılı)',
+                price: 75000,
+                discordTag: 'AdminLord#0001',
+                proof: 'Dekont atıldı',
+                status: 'Completed', // Pending, Completed, Rejected
+                credentials: 'old_account_2018_xyz@mail.com : OldPass889'
+            }
+        ];
+
+        // Save to LocalStorage
+        function saveData() {
+            localStorage.setItem('owo_products', JSON.stringify(products));
+            localStorage.setItem('owo_orders', JSON.stringify(orders));
+            if (currentUser) {
+                localStorage.setItem('owo_user', JSON.stringify(currentUser));
+            } else {
+                localStorage.removeItem('owo_user');
+            }
+        }
+
+        // Tab Switcher
+        function switchTab(tabName) {
+            document.getElementById('tab-shop').classList.add('hidden');
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-admin').classList.add('hidden');
+
+            document.getElementById('nav-shop').className = "px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all";
+            document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all";
+            document.getElementById('nav-admin').className = "px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all hidden";
+
+            if (currentUser && currentUser.isAdmin) {
+                document.getElementById('nav-admin').classList.remove('hidden');
+            }
+
+            if (tabName === 'shop') {
+                document.getElementById('tab-shop').classList.remove('hidden');
+                document.getElementById('nav-shop').className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-discord/20 text-discord border border-discord/30";
+                renderProducts();
+            } else if (tabName === 'dashboard') {
+                if (!currentUser) {
+                    showToast('Uyarı', 'Lütfen önce giriş yapın.', 'warning');
+                    openAuthModal();
+                    return;
+                }
+                document.getElementById('tab-dashboard').classList.remove('hidden');
+                document.getElementById('nav-dashboard').className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-discord/20 text-discord border border-discord/30";
+                renderDashboard();
+            } else if (tabName === 'admin') {
+                if (!currentUser || !currentUser.isAdmin) {
+                    showToast('Yetkisiz', 'Bu alana erişim yetkiniz yok.', 'error');
+                    switchTab('shop');
+                    return;
+                }
+                document.getElementById('tab-admin').classList.remove('hidden');
+                document.getElementById('nav-admin').className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-discord/20 text-discord border border-discord/30";
+                renderAdmin();
+            }
+        }
+
+        // Render Header Auth Component
+        function renderAuthHeader() {
+            const container = document.getElementById('auth-header-container');
+            if (currentUser) {
+                container.innerHTML = `
+                    <div class="flex items-center space-x-3 bg-slate-900/80 px-4 py-2 rounded-2xl border border-borderCol">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-discord to-pink-500 flex items-center justify-center font-bold text-white text-sm">
+                            ${currentUser.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <span class="block text-xs font-bold text-white">${currentUser.name}</span>
+                            <span class="block text-[10px] text-pink-400 font-mono">OwO Market Üyesi</span>
+                        </div>
+                        <button onclick="logout()" class="ml-2 text-slate-400 hover:text-red-400 p-1.5 transition-colors" title="Çıkış Yap">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button onclick="openAuthModal()" class="px-5 py-2.5 rounded-xl bg-discord hover:bg-discordDark text-white font-bold text-sm shadow-lg shadow-discord/30 transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Giriş / Kayıt</span>
+                    </button>
+                `;
+            }
+        }
+
+        // Render Products Catalog
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            
+            let filtered = products.filter(p => {
+                const matchesCat = currentFilter === 'all' || p.category === currentFilter;
+                const matchesSearch = p.title.toLowerCase().includes(searchVal) || p.specs.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-16 text-center glass-panel rounded-3xl border border-borderCol">
+                        <i class="fa-solid fa-box-open text-4xl text-slate-500 mb-3"></i>
+                        <p class="text-slate-400 text-sm">Aradığınız kriterlere uygun hesap bulunamadı.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass-panel rounded-3xl p-6 border border-borderCol flex flex-col justify-between hover:border-discord/50 transition-all group">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-discord/15 text-discord border border-discord/30">
+                                ${p.category}
+                            </span>
+                            <span class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                                <i class="fa-solid fa-box mr-1"></i> Stok: ${p.stock}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-indigo-300 transition-colors">${p.title}</h3>
+                            <p class="text-xs text-slate-400 mt-1">${p.specs}</p>
+                        </div>
+                    </div>
+                    <div class="pt-6 mt-6 border-t border-borderCol flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] text-slate-500 uppercase font-semibold">Fiyat</span>
+                            <span class="text-lg font-extrabold text-pink-400">${p.price.toLocaleString()} OwO</span>
+                        </div>
+                        <button onclick="openPurchaseModal('${p.id}')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-discord to-pink-500 hover:from-discordDark hover:to-pink-600 text-white font-bold text-xs shadow-lg shadow-discord/20 transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span>Satın Al</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            currentFilter = cat;
+            ['all', 'Discord', 'Oyun', 'Sosyal'].forEach(c => {
+                const btn = document.getElementById(`cat-${c}`);
+                if(btn) {
+                    if (c === cat) {
+                        btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-discord text-white shadow-lg shadow-discord/20 whitespace-nowrap";
+                    } else {
+                        btn.className = "px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800/80 text-slate-300 hover:text-white border border-borderCol whitespace-nowrap";
+                    }
+                }
+            });
+            renderProducts();
+        }
+
+        function handleSearch() {
+            renderProducts();
+        }
+
+        // Auth Modal Controls
+        function openAuthModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('auth-modal-title').innerText = isRegisterMode ? 'Kayıt Ol' : 'Giriş Yap';
+            document.getElementById('auth-submit-btn').innerText = isRegisterMode ? 'Kayıt Ol ve Başla' : 'Giriş Yap';
+            document.getElementById('auth-switch-text').innerText = isRegisterMode ? 'Zaten hesabın var mı?' : 'Hesabın yok mu?';
+            document.getElementById('auth-switch-btn').innerText = isRegisterMode ? 'Giriş Yap' : 'Kayıt Ol';
+            document.getElementById('auth-name-field').classList.toggle('hidden', !isRegisterMode);
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('input-email').value;
+            const password = document.getElementById('input-password').value;
+            const discord = document.getElementById('input-discord').value;
+            const name = isRegisterMode ? document.getElementById('input-name').value : (email.split('@')[0]);
+
+            if (isRegisterMode) {
+                currentUser = {
+                    email,
+                    name,
+                    discord,
+                    isAdmin: email === 'admin@market.com'
+                };
+                showToast('Başarılı', 'Hesabınız başarıyla oluşturuldu!', 'success');
+            } else {
+                currentUser = {
+                    email,
+                    name: email === 'admin@market.com' ? 'Admin Lord' : name,
+                    discord,
+                    isAdmin: email === 'admin@market.com'
+                };
+                showToast('Başarılı', 'Giriş yapıldı!', 'success');
+            }
+
+            saveData();
+            renderAuthHeader();
+            closeAuthModal();
+            switchTab('shop');
+        }
+
+        function logout() {
+            currentUser = null;
+            saveData();
+            renderAuthHeader();
+            switchTab('shop');
+            showToast('Bilgi', 'Çıkış yapıldı.', 'info');
+        }
+
+        // Purchase Modal Controls
+        function openPurchaseModal(productId) {
+            if (!currentUser) {
+                showToast('Uyarı', 'Satın alım yapmak için giriş yapmalısınız.', 'warning');
+                openAuthModal();
+                return;
+            }
+
+            const product = products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) {
+                showToast('Hata', 'Ürün stokta kalmadı.', 'error');
+                return;
+            }
+
+            document.getElementById('modal-product-id').value = product.id;
+            document.getElementById('modal-product-category').innerText = product.category;
+            document.getElementById('modal-product-title').innerText = product.title;
+            document.getElementById('modal-product-price').innerText = `${product.price.toLocaleString()} OwO Cash`;
+            document.getElementById('bot-command-preview').innerText = `owo cash @OwOMarket ${product.price}`;
+            document.getElementById('buy-discord-tag').value = currentUser.discord || '';
+
+            document.getElementById('purchase-modal').classList.remove('hidden');
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchase-modal').classList.add('hidden');
+        }
+
+        function handlePurchaseSubmit(e) {
+            e.preventDefault();
+            const productId = document.getElementById('modal-product-id').value;
+            const discordTag = document.getElementById('buy-discord-tag').value;
+            const proof = document.getElementById('buy-proof').value || 'Belirtilmedi';
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                userId: currentUser.email,
+                userName: currentUser.name,
+                productId: product.id,
+                productTitle: product.title,
+                price: product.price,
+                discordTag: discordTag,
+                proof: proof,
+                status: 'Pending',
+                credentials: product.credentials
+            };
+
+            orders.unshift(newOrder);
+            product.stock -= 1;
+            saveData();
+
+            closePurchaseModal();
+            showToast('Sipariş Alındı', 'Ödemeniz kontrol edildikten sonra hesap bilgileri panelinize yansıyacaktır.', 'success');
+            switchTab('dashboard');
+        }
+
+        // Render Dashboard
+        function renderDashboard() {
+            if (!currentUser) return;
+
+            document.getElementById('dash-user-name').innerText = currentUser.name;
+            document.getElementById('dash-user-discord').innerText = `Discord: ${currentUser.discord || 'Belirtilmemiş'}`;
+            document.getElementById('dash-user-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('dash-user-role').innerText = currentUser.isAdmin ? 'Yönetici' : 'Üye';
+
+            const userOrders = orders.filter(o => o.userId === currentUser.email);
+            document.getElementById('stat-total-orders').innerText = userOrders.length;
+
+            const tbody = document.getElementById('orders-table-body');
+            if (userOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">Henüz bir siparişiniz bulunmuyor.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = userOrders.map(o => `
+                <tr class="hover:bg-slate-800/30 transition-colors">
+                    <td class="py-4 px-6 font-mono text-xs text-indigo-400">${o.id}</td>
+                    <td class="py-4 px-6 font-semibold text-white">${o.productTitle}</td>
+                    <td class="py-4 px-6 text-pink-400 font-bold">${o.price.toLocaleString()} OwO</td>
+                    <td class="py-4 px-6 text-slate-300">${o.discordTag}</td>
+                    <td class="py-4 px-6">
+                        ${o.status === 'Completed' ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Tamamlandı</span>' : ''}
+                        ${o.status === 'Pending' ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Onay Bekliyor</span>' : ''}
+                        ${o.status === 'Rejected' ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">Reddedildi</span>' : ''}
+                    </td>
+                    <td class="py-4 px-6">
+                        ${o.status === 'Completed' ? `<code class="bg-slate-900 px-3 py-1 rounded text-xs text-emerald-300 border border-emerald-500/30 select-all">${o.credentials}</code>` : '<span class="text-xs text-slate-500">Ödeme onayında</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Admin Panel
+        function renderAdmin() {
+            const ordersBody = document.getElementById('admin-orders-body');
+            if (orders.length === 0) {
+                ordersBody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-500">Sipariş bulunmuyor.</td></tr>`;
+            } else {
+                ordersBody.innerHTML = orders.map(o => `
+                    <tr class="hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3 px-6 font-mono text-xs text-indigo-400">${o.id}</td>
+                        <td class="py-3 px-6 text-white">${o.userName}<br><span class="text-[10px] text-slate-400">${o.userId}</span></td>
+                        <td class="py-3 px-6 text-slate-200">${o.productTitle}</td>
+                        <td class="py-3 px-6 text-xs text-slate-300">Discord: <b>${o.discordTag}</b><br>Dekont: ${o.proof}</td>
+                        <td class="py-3 px-6">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${o.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${o.status}</span>
+                        </td>
+                        <td class="py-3 px-6 flex items-center space-x-2">
+                            ${o.status === 'Pending' ? `
+                                <button onclick="updateOrderStatus('${o.id}', 'Completed')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all">Onayla</button>
+                                <button onclick="updateOrderStatus('${o.id}', 'Rejected')" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all">Reddet</button>
+                            ` : '<span class="text-xs text-slate-500">İşlem yapıldı</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const productList = document.getElementById('admin-product-list');
+            productList.innerHTML = products.map(p => `
+                <div class="glass-panel p-4 rounded-2xl border border-borderCol flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] text-discord font-bold">${p.category}</span>
+                        <h4 class="text-sm font-bold text-white">${p.title}</h4>
+                        <span class="text-xs text-pink-400 font-semibold">${p.price.toLocaleString()} OwO | Stok: ${p.stock}</span>
+                    </div>
+                    <button onclick="deleteProduct('${p.id}')" class="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all text-xs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateOrderStatus(orderId, status) {
+            const ord = orders.find(o => o.id === orderId);
+            if (ord) {
+                ord.status = status;
+                saveData();
+                renderAdmin();
+                showToast('Güncellendi', `Sipariş durumu ${status} olarak değiştirildi.`, 'success');
+            }
+        }
+
+        function openAddProductModal() {
+            document.getElementById('add-product-modal').classList.remove('hidden');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('add-product-modal').classList.add('hidden');
+        }
+
+        function handleAddProductSubmit(e) {
+            e.preventDefault();
+            const newProd = {
+                id: 'prod-' + Date.now(),
+                title: document.getElementById('add-title').value,
+                category: document.getElementById('add-category').value,
+                price: parseInt(document.getElementById('add-price').value),
+                specs: document.getElementById('add-specs').value,
+                stock: 1,
+                credentials: document.getElementById('add-credentials').value
+            };
+
+            products.push(newProd);
+            saveData();
+            closeAddProductModal();
+            renderProducts();
+            showToast('Başarılı', 'Yeni hesap stoğa eklendi!', 'success');
+        }
+
+        function deleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            saveData();
+            renderAdmin();
+            showToast('Silindi', 'Ürün stoktan kaldırıldı.', 'info');
+        }
+
+        // Toast Notification System
+        function showToast(title, msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-msg').innerText = msg;
+            
+            const icon = document.getElementById('toast-icon');
+            if (type === 'success') {
+                icon.className = "w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/20 text-emerald-400";
+                icon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+            } else if (type === 'warning') {
+                icon.className = "w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/20 text-amber-400";
+                icon.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+            } else {
+                icon.className = "w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/20 text-red-400";
+                icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+            }
+
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 4000);
+        }
+
+        // Initial load
+        window.onload = function() {
+            renderAuthHeader();
+            renderProducts();
+            // Default admin demo user setup if needed
+            if (!localStorage.getItem('owo_user_initialized')) {
+                localStorage.setItem('owo_user_initialized', 'true');
+            }
+        };
+    </script>
+</body>
+</html>
